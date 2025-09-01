@@ -1,0 +1,47 @@
+{
+  "training_info": {
+    "timestamp": "2025-09-01T06:17:49.530523",
+    "total_samples": 68,
+    "features": [
+      "berat_badan",
+      "tinggi_badan",
+      "lingkar_kepala",
+      "lingkar_lengan",
+      "usia",
+      "asi_eksklusif",
+      "status_imunisasi",
+      "riwayat_penyakit",
+      "akses_air_bersih",
+      "sanitasi_layak"
+    ],
+    "feature_order": [
+      "berat_badan",
+      "tinggi_badan",
+      "lingkar_kepala",
+      "lingkar_lengan",
+      "usia",
+      "asi_eksklusif",
+      "status_imunisasi",
+      "riwayat_penyakit",
+      "akses_air_bersih",
+      "sanitasi_layak"
+    ],
+    "classes": {
+      "0": "Normal",
+      "1": "Beresiko Stunting",
+      "2": "Stunting"
+    },
+    "class_distribution": {
+      "0": 17,
+      "1": 3,
+      "2": 48
+    },
+    "class_weights": {
+      "0": 1.3333333333333333,
+      "1": 5.0,
+      "2": 0.4722222222222222
+    },
+    "train_accuracy": 1.0,
+    "oob_score": 0.9264705882352942,
+    "expected_distribution": [
+      

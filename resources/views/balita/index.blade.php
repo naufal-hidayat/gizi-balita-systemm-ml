@@ -13,16 +13,6 @@
             <p class="text-sm text-gray-600">Kelola data balita di {{ auth()->user()->isAdmin() ? 'seluruh sistem' : auth()->user()->posyandu_name }}</p>
         </div>
         <div class="flex items-center space-x-3">
-            @if(auth()->user()->isAdmin())
-            <a href="{{ route('balita.migrate-addresses') }}"
-                class="inline-flex items-center px-3 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors duration-200 text-sm"
-                onclick="return confirm('Migrate alamat lama ke format baru?')">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
-                Migrate Alamat
-            </a>
-            @endif
             <a href="{{ route('balita.create') }}"
                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +34,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Total Balita</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $balita->total() }}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
                 </div>
             </div>
         </div>
@@ -58,7 +48,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Laki-laki</p>
-                    <p class="text-2xl font-bold text-blue-600">{{ $balita->where('jenis_kelamin', 'L')->count() }}</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ $stats['laki_laki'] }}</p>
                 </div>
             </div>
         </div>
@@ -72,7 +62,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Perempuan</p>
-                    <p class="text-2xl font-bold text-pink-600">{{ $balita->where('jenis_kelamin', 'P')->count() }}</p>
+                    <p class="text-2xl font-bold text-pink-600">{{ $stats['perempuan'] }}</p>
                 </div>
             </div>
         </div>
@@ -86,9 +76,15 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Alamat Lengkap</p>
-                    <p class="text-2xl font-bold text-green-600">
-                        {{ $balita->filter(function($child) { return $child->isAddressComplete(); })->count() }}
-                    </p>
+                    <div class="flex items-center space-x-2">
+                        <p class="text-2xl font-bold text-green-600">
+                            {{ $stats['alamat_lengkap'] }}
+                        </p>
+                        <span class="text-sm text-gray-400">/</span>
+                        <span class="text-sm text-red-500 font-medium">
+                            {{ $stats['alamat_tidak_lengkap'] }} belum lengkap
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,7 +101,16 @@
             </div>
             
             <!-- Filters -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-4">
+                <!-- Sort Filter (Baru) -->
+                <div>
+                    <select name="sort_name" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Urutkan Nama</option>
+                        <option value="asc" {{ request('sort_name') == 'asc' ? 'selected' : '' }}>A - Z</option>
+                        <option value="desc" {{ request('sort_name') == 'desc' ? 'selected' : '' }}>Z - A</option>
+                    </select>
+                </div>
+
                 @if(auth()->user()->isAdmin())
                 <div>
                     <select name="posyandu" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -141,13 +146,22 @@
                     </select>
                 </div>
 
+                <!-- Filter Alamat -->
+                <div>
+                    <select name="alamat_status" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Status Alamat</option>
+                        <option value="lengkap" {{ request('alamat_status') == 'lengkap' ? 'selected' : '' }}>Alamat Lengkap</option>
+                        <option value="tidak_lengkap" {{ request('alamat_status') == 'tidak_lengkap' ? 'selected' : '' }}>Alamat Tidak Lengkap</option>
+                    </select>
+                </div>
+
                 <div>
                     <button type="submit" class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200">
                         Cari
                     </button>
                 </div>
 
-                @if(request()->hasAny(['search', 'posyandu', 'kecamatan', 'gender']))
+                @if(request()->hasAny(['search', 'posyandu', 'kecamatan', 'gender', 'alamat_status', 'sort_name']))
                 <div>
                     <a href="{{ route('balita.index') }}" class="w-full inline-block text-center px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-200">
                         Reset
@@ -164,7 +178,16 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balita</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Balita
+                            @if(request('sort_name'))
+                                @if(request('sort_name') == 'asc')
+                                    <span class="ml-1 text-blue-500">↑</span>
+                                @else
+                                    <span class="ml-1 text-blue-500">↓</span>
+                                @endif
+                            @endif
+                        </th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">QR Code</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Orang Tua & Alamat</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Umur</th>
@@ -175,7 +198,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                     @forelse($balita as $child)
-                    <tr class="hover:bg-gray-50 transition-colors duration-200">
+                    <tr class="hover:bg-gray-50 transition-colors duration-200 {{ !$child->isAddressComplete() ? 'bg-red-50' : '' }}">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
                                 <div class="w-10 h-10 {{ $child->jenis_kelamin == 'L' ? 'bg-blue-100' : 'bg-pink-100' }} rounded-full flex items-center justify-center">
@@ -240,11 +263,27 @@
                                         <svg class="w-3 h-3 mr-1 mt-0.5 text-yellow-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                             <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
                                         </svg>
-                                        <div class="text-xs text-gray-500">{{ Str::limit($child->alamat_lengkap, 35) }}</div>
+                                        <div class="flex-1">
+                                            <div class="text-xs text-gray-500">{{ Str::limit($child->alamat_lengkap, 35) }}</div>
+                                            <div class="text-xs text-amber-600 font-medium mt-1 flex items-center">
+                                                <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                Format lama
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 @else
-                                <div class="text-xs text-red-500 mt-1">Alamat belum lengkap</div>
+                                <div class="text-sm text-red-600 mt-1">
+                                    <div class="flex items-center">
+                                        <svg class="w-3 h-3 mr-1 text-red-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+                                        </svg>
+                                        <span class="text-xs font-medium">Alamat belum lengkap</span>
+                                    </div>
+                                    <div class="text-xs text-red-500 mt-1 ml-4">Perlu dilengkapi data alamat</div>
+                                </div>
                                 @endif
                             </div>
                         </td>

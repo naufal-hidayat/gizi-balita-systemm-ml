@@ -11,80 +11,135 @@ use App\Http\Requests\BalitaRequest;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
+use Exception;
 
 class BalitaController extends Controller
 {
     public function index(Request $request)
     {
         $user = auth()->user();
-        $query = Balita::with(['latestPengukuran', 'masterPosyandu', 'masterDesa']);
-
+    
+        // 1. Buat Query Dasar
+        $baseQuery = Balita::with(['latestPengukuran', 'masterPosyandu', 'masterDesa']);
+    
+        // 2. Terapkan Filter berdasarkan Role
         if (!$user->isAdmin()) {
-            $query->where('posyandu', $user->posyandu_name);
+            $baseQuery->where('posyandu', $user->posyandu_name);
         }
-
-        // Filter berdasarkan area
-        if ($request->filled('area')) {
-            $query->where('area', $request->area);
-        }
-
-        // Filter berdasarkan posyandu
-        if ($request->filled('posyandu')) {
-            $query->where('master_posyandu_id', $request->posyandu);
-        }
-
-        // Filter berdasarkan desa
-        if ($request->filled('desa')) {
-            $query->where('master_desa_id', $request->desa);
-        }
-
-        // Filter berdasarkan kecamatan (feature baru)
-        if ($request->filled('kecamatan')) {
-            $query->where('kecamatan', $request->kecamatan);
-        }
-
-        // Filter berdasarkan nama
+    
+        // 3. Terapkan semua filter dari request ke Query Dasar
+        // Filter berdasarkan pencarian (search)
         if ($request->filled('search')) {
-            $query->where(function ($q) use ($request) {
+            $baseQuery->where(function ($q) use ($request) {
                 $q->where('nama_balita', 'like', '%' . $request->search . '%')
                     ->orWhere('nik_balita', 'like', '%' . $request->search . '%')
                     ->orWhere('nama_orang_tua', 'like', '%' . $request->search . '%')
+                    ->orWhere('alamat_lengkap', 'like', '%' . $request->search . '%')
                     ->orWhere('desa_kelurahan', 'like', '%' . $request->search . '%');
             });
         }
-
-        $balita = $query->latest()->paginate(15);
-
+    
+        // Filter lainnya
+        if ($request->filled('posyandu')) {
+            $baseQuery->where('posyandu', $request->posyandu);
+        }
+        if ($request->filled('kecamatan')) {
+            $baseQuery->where('kecamatan', $request->kecamatan);
+        }
+        if ($request->filled('gender')) {
+            $baseQuery->where('jenis_kelamin', $request->gender);
+        }
+        if ($request->filled('area')) {
+            $baseQuery->where('area', $request->area);
+        }
+        if ($request->filled('desa')) {
+            $baseQuery->where('desa', $request->desa);
+        }
+        if ($request->filled('alamat_status')) {
+            if ($request->alamat_status == 'lengkap') {
+                $baseQuery->where(function($q) {
+                    $q->whereHas('masterDesa')
+                      ->orWhere(function($subq) {
+                          $subq->whereNotNull('rt')
+                               ->whereNotNull('rw')
+                               ->whereNotNull('desa_kelurahan')
+                               ->whereNotNull('kecamatan');
+                      });
+                });
+            } elseif ($request->alamat_status == 'tidak_lengkap') {
+                $baseQuery->where(function($q) {
+                    $q->whereNull('rt')
+                      ->orWhereNull('rw')
+                      ->orWhereNull('desa_kelurahan')
+                      ->orWhereNull('kecamatan')
+                      ->orWhereDoesntHave('masterDesa');
+                });
+            }
+        }
+    
+        // 3.1. Terapkan Sort berdasarkan nama balita
+        if ($request->filled('sort_name')) {
+            if ($request->sort_name == 'asc') {
+                $baseQuery->orderBy('nama_balita', 'asc');
+            } elseif ($request->sort_name == 'desc') {
+                $baseQuery->orderBy('nama_balita', 'desc');
+            }
+        } else {
+            // Default sorting - terbaru dulu
+            $baseQuery->latest();
+        }
+    
+        // 4. Hitung Statistik menggunakan clone() dari Query Dasar
+        // clone() penting agar setiap perhitungan tidak mempengaruhi perhitungan lainnya
+        $stats = [
+            'total' => $baseQuery->clone()->count(),
+            'laki_laki' => $baseQuery->clone()->where('jenis_kelamin', 'L')->count(),
+            'perempuan' => $baseQuery->clone()->where('jenis_kelamin', 'P')->count(),
+            'alamat_lengkap' => $baseQuery->clone()->where(function($q) {
+                $q->whereHas('masterDesa')
+                  ->orWhere(function($subq) {
+                      $subq->whereNotNull('rt')
+                           ->whereNotNull('rw')
+                           ->whereNotNull('desa_kelurahan')
+                           ->whereNotNull('kecamatan');
+                  });
+            })->count()
+        ];
+        
+        // Tambahkan statistik alamat tidak lengkap
+        $stats['alamat_tidak_lengkap'] = $stats['total'] - $stats['alamat_lengkap'];
+    
+        // 5. Ambil data untuk ditampilkan dengan paginasi
+        $balita = $baseQuery->paginate(15);
+    
         // Data untuk filter dropdown
         $areas = ['timur', 'barat', 'utara', 'selatan'];
         $posyandus = collect();
         $desas = collect();
         $kecamatans = collect();
-
+    
         if ($user->isAdmin()) {
-            $posyandusQuery = MasterPosyandu::active();
-            $desasQuery = MasterDesa::active();
-
-            if ($request->filled('area')) {
-                $posyandusQuery->where('area', $request->area);
-                $desasQuery->where('area', $request->area);
-            }
-
-            if ($request->filled('posyandu')) {
-                $desasQuery->where('master_posyandu_id', $request->posyandu);
-            }
-
-            $posyandus = $posyandusQuery->get();
-            $desas = $desasQuery->get();
-            
-            // Get distinct kecamatan from balita data
-            $kecamatans = Balita::whereNotNull('kecamatan')
-                               ->distinct()
-                               ->orderBy('kecamatan')
-                               ->pluck('kecamatan');
+            // Untuk admin, ambil semua data unik dari tabel
+            $posyandus = Balita::whereNotNull('posyandu')->distinct()->orderBy('posyandu')->pluck('posyandu');
+            $kecamatans = Balita::whereNotNull('kecamatan')->distinct()->orderBy('kecamatan')->pluck('kecamatan');
+            $desas = Balita::whereNotNull('desa')->distinct()->orderBy('desa')->pluck('desa');
+        } else {
+            // Untuk non-admin, hanya dari posyandu mereka
+            $kecamatans = Balita::where('posyandu', $user->posyandu_name)
+                                ->whereNotNull('kecamatan')
+                                ->distinct()
+                                ->orderBy('kecamatan')
+                                ->pluck('kecamatan');
+            // Anda mungkin juga ingin membatasi desa berdasarkan posyandu pengguna
+            $desas = Balita::where('posyandu', $user->posyandu_name)
+                           ->whereNotNull('desa')
+                           ->distinct()
+                           ->orderBy('desa')
+                           ->pluck('desa');
         }
-
-        return view('balita.index', compact('balita', 'areas', 'posyandus', 'desas', 'kecamatans'));
+    
+        return view('balita.index', compact('balita', 'stats', 'areas', 'posyandus', 'desas', 'kecamatans'));
     }
 
     public function create()
@@ -260,10 +315,35 @@ class BalitaController extends Controller
 
     public function destroy(Balita $balita)
     {
-        $balita->delete();
-
-        return redirect()->route('balita.index')
-            ->with('success', 'Data balita berhasil dihapus');
+        // Gunakan transaksi database untuk memastikan semua proses berjalan atau tidak sama sekali
+        DB::beginTransaction();
+        try {
+            // Hapus dulu semua data pengukuran terkait balita ini
+            // Ini sesuai dengan logika di event `deleting` pada model Anda
+            foreach ($balita->pengukuran as $pengukuran) {
+                if ($pengukuran->prediksiGizi) {
+                    $pengukuran->prediksiGizi->delete();
+                }
+                $pengukuran->delete();
+            }
+    
+            // Setelah data terkait aman untuk dihapus, baru hapus data balita utama
+            $balita->forceDelete(); // Menggunakan forceDelete untuk memastikan hapus permanen
+    
+            // Jika semua berhasil, konfirmasi transaksi
+            DB::commit();
+    
+            return redirect()->route('balita.index')
+                ->with('success', 'Data balita berhasil dihapus secara permanen.');
+    
+        } catch (Exception $e) {
+            // Jika ada error di tengah jalan, batalkan semua perubahan
+            DB::rollBack();
+    
+            // Tampilkan pesan error agar kita tahu apa yang salah
+            return redirect()->route('balita.index')
+                ->with('error', 'Gagal menghapus data balita. Error: ' . $e->getMessage());
+        }
     }
 
     // API untuk mendapatkan posyandu berdasarkan area (dari master data)

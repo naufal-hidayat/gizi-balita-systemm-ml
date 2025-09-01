@@ -60,8 +60,16 @@ class MasterDataSeeder extends Seeder
             'kontak' => '08000111222'
         ]);
 
-        // Master Posyandu Area Utara
         $posyandu7 = MasterPosyandu::create([
+            'nama_posyandu' => 'Posyandu Karang Anyar',
+            'area' => 'barat',
+            'alamat' => 'Karang Anyar, Desa Puncak, Kecamatan Cigugur',
+            'ketua_posyandu' => 'Ibu Permata Sari',
+            'kontak' => '081231112212'
+        ]);
+
+        // Master Posyandu Area Utara
+        $posyandu8 = MasterPosyandu::create([
             'nama_posyandu' => 'Posyandu Seruni Utara',
             'area' => 'utara',
             'alamat' => 'Jl. Utara Sejahtera No. 5, Kecamatan Utara',
@@ -69,7 +77,7 @@ class MasterDataSeeder extends Seeder
             'kontak' => '08333444555'
         ]);
 
-        $posyandu8 = MasterPosyandu::create([
+        $posyandu9 = MasterPosyandu::create([
             'nama_posyandu' => 'Posyandu Jasmine Utara',
             'area' => 'utara',
             'alamat' => 'Jl. Pegunungan No. 18, Kecamatan Utara',
@@ -78,7 +86,7 @@ class MasterDataSeeder extends Seeder
         ]);
 
         // Master Posyandu Area Selatan
-        $posyandu9 = MasterPosyandu::create([
+        $posyandu10 = MasterPosyandu::create([
             'nama_posyandu' => 'Posyandu Bougenville Selatan',
             'area' => 'selatan',
             'alamat' => 'Jl. Selatan Permai No. 10, Kecamatan Selatan',
@@ -86,7 +94,7 @@ class MasterDataSeeder extends Seeder
             'kontak' => '08999000111'
         ]);
 
-        $posyandu10 = MasterPosyandu::create([
+        $posyandu11 = MasterPosyandu::create([
             'nama_posyandu' => 'Posyandu Teratai Selatan',
             'area' => 'selatan',
             'alamat' => 'Jl. Pantai No. 25, Kecamatan Selatan',
@@ -111,17 +119,18 @@ class MasterDataSeeder extends Seeder
         MasterDesa::create(['nama_desa' => 'Desa Sentosa', 'area' => 'barat', 'master_posyandu_id' => $posyandu5->id, 'jumlah_penduduk' => 1300]);
         MasterDesa::create(['nama_desa' => 'Desa Bina Sejahtera', 'area' => 'barat', 'master_posyandu_id' => $posyandu6->id, 'jumlah_penduduk' => 1550]);
         MasterDesa::create(['nama_desa' => 'Desa Mulia Jaya', 'area' => 'barat', 'master_posyandu_id' => $posyandu6->id, 'jumlah_penduduk' => 1420]);
+        MasterDesa::create(['nama_desa' => 'Desa Sukamulya', 'area' => 'barat', 'master_posyandu_id' => $posyandu7->id, 'jumlah_penduduk' => 1000]);
 
         // Desa Area Utara
-        MasterDesa::create(['nama_desa' => 'Desa Maju', 'area' => 'utara', 'master_posyandu_id' => $posyandu7->id, 'jumlah_penduduk' => 1700]);
-        MasterDesa::create(['nama_desa' => 'Desa Damai', 'area' => 'utara', 'master_posyandu_id' => $posyandu7->id, 'jumlah_penduduk' => 1150]);
-        MasterDesa::create(['nama_desa' => 'Desa Utara Jaya', 'area' => 'utara', 'master_posyandu_id' => $posyandu8->id, 'jumlah_penduduk' => 1900]);
-        MasterDesa::create(['nama_desa' => 'Desa Sejahtera Utara', 'area' => 'utara', 'master_posyandu_id' => $posyandu8->id, 'jumlah_penduduk' => 1250]);
+        MasterDesa::create(['nama_desa' => 'Desa Maju', 'area' => 'utara', 'master_posyandu_id' => $posyandu8->id, 'jumlah_penduduk' => 1700]);
+        MasterDesa::create(['nama_desa' => 'Desa Damai', 'area' => 'utara', 'master_posyandu_id' => $posyandu8->id, 'jumlah_penduduk' => 1150]);
+        MasterDesa::create(['nama_desa' => 'Desa Utara Jaya', 'area' => 'utara', 'master_posyandu_id' => $posyandu9->id, 'jumlah_penduduk' => 1900]);
+        MasterDesa::create(['nama_desa' => 'Desa Sejahtera Utara', 'area' => 'utara', 'master_posyandu_id' => $posyandu9->id, 'jumlah_penduduk' => 1250]);
 
         // Desa Area Selatan
-        MasterDesa::create(['nama_desa' => 'Desa Tentram', 'area' => 'selatan', 'master_posyandu_id' => $posyandu9->id, 'jumlah_penduduk' => 1550]);
-        MasterDesa::create(['nama_desa' => 'Desa Rukun', 'area' => 'selatan', 'master_posyandu_id' => $posyandu9->id, 'jumlah_penduduk' => 1250]);
-        MasterDesa::create(['nama_desa' => 'Desa Selatan Asri', 'area' => 'selatan', 'master_posyandu_id' => $posyandu10->id, 'jumlah_penduduk' => 1450]);
-        MasterDesa::create(['nama_desa' => 'Desa Pantai Indah', 'area' => 'selatan', 'master_posyandu_id' => $posyandu10->id, 'jumlah_penduduk' => 1800]);
+        MasterDesa::create(['nama_desa' => 'Desa Tentram', 'area' => 'selatan', 'master_posyandu_id' => $posyandu10->id, 'jumlah_penduduk' => 1550]);
+        MasterDesa::create(['nama_desa' => 'Desa Rukun', 'area' => 'selatan', 'master_posyandu_id' => $posyandu10->id, 'jumlah_penduduk' => 1250]);
+        MasterDesa::create(['nama_desa' => 'Desa Selatan Asri', 'area' => 'selatan', 'master_posyandu_id' => $posyandu11->id, 'jumlah_penduduk' => 1450]);
+        MasterDesa::create(['nama_desa' => 'Desa Pantai Indah', 'area' => 'selatan', 'master_posyandu_id' => $posyandu11->id, 'jumlah_penduduk' => 1800]);
     }
 }

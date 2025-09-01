@@ -14,7 +14,8 @@ class DatabaseSeeder extends Seeder
             AhpCriteriaSeeder::class,
             FuzzyRulesSeeder::class,
             MasterDataSeeder::class,
-            // BalitaSeeder::class,
+            BalitaSeeder::class,
+            PengukuranSeeder::class,
         ]);
     }
 }

@@ -94,7 +94,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/fuzzy/criteria', [SettingController::class, 'updateCriteria'])->name('fuzzy.criteria');
             Route::post('/fuzzy/rules', [SettingController::class, 'updateRules'])->name('fuzzy.rules');
         });
-        Route::get('balita/migrate-addresses', [BalitaController::class, 'migrateAddresses'])->name('balita.migrate-addresses');
+        // Route::get('balita/migrate-addresses', [BalitaController::class, 'migrateAddresses'])->name('balita.migrate-addresses');
     });
 });
 
@@ -133,15 +133,27 @@ Route::middleware('auth')->group(function () {
 // ===================== PREDIKSI BULK =====================
 Route::group(['prefix' => 'prediksi-bulk', 'as' => 'prediksi.bulk.'], function () {
     Route::get('/', [PrediksiBulkController::class, 'index'])->name('form');
+    
+    // Route prediksi
     Route::post('/predict', [PrediksiBulkController::class, 'predict'])->name('submit');
-    Route::post('/refresh-data', [PrediksiBulkController::class, 'refreshData'])->name('refresh');
-
-    // Sinkronisasi Fuzzy-AHP
+    Route::post('/predict-consistent', [PrediksiBulkController::class, 'predictConsistent'])->name('submit-consistent');
+    
+    // Sinkronisasi dan training
     Route::post('/sync-from-fuzzy', [PrediksiBulkController::class, 'syncFromFuzzy'])->name('sync-fuzzy');
     Route::post('/retrain-model', [PrediksiBulkController::class, 'retrainModel'])->name('retrain');
+    Route::post('/force-retrain-model', [PrediksiBulkController::class, 'forceRetrainModel'])->name('force-retrain');
+    
+    // Debug dan reload yang sudah diperbaiki
+    Route::get('/debug-prediction', [PrediksiBulkController::class, 'debugPrediction'])->name('debug');
+    Route::post('/reload-flask', [PrediksiBulkController::class, 'simpleReloadFlask'])->name('reload-flask');
 
-    // Simple sync test
-    Route::post('/simple-sync', [PrediksiBulkController::class, 'simpleSyncTest'])->name('simple-sync');
+    // Tambahkan ke route group prediksi-bulk
+Route::post('/predict-ultimate-fix', [PrediksiBulkController::class, 'ultimateFixPrediction'])->name('submit-ultimate-fix');
+Route::get('/comprehensive-debug', [PrediksiBulkController::class, 'comprehensiveDebug'])->name('comprehensive-debug');
+// Route untuk final solution
+Route::post('/predict-final-rf', [PrediksiBulkController::class, 'finalRandomForestPrediction'])->name('submit-final-rf');
+// Route
+Route::post('/predict-final-consistent', [PrediksiBulkController::class, 'finalConsistentPrediction'])->name('submit-final-consistent');
 });
 
 // ===================== Sinkronisasi Fuzzy-AHP =====================

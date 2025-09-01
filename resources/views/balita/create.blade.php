@@ -182,58 +182,88 @@
             </div>
 
             <!-- Lokasi Posyandu -->
+            <!-- Lokasi Posyandu -->
             <div class="space-y-4">
                 <h4 class="text-md font-medium text-gray-900 border-b border-gray-200 pb-2">Lokasi Posyandu</h4>
-
+                
                 @if(auth()->user()->isAdmin())
                 <!-- Untuk Admin: Dropdown cascade dari master data -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label for="area" class="block text-sm font-medium text-gray-700 mb-2">Area</label>
-                        <select name="area" id="area"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('area') border-red-300 @enderror" required>
+                        <select name="area" id="area" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('area') border-red-300 @enderror" required>
                             <option value="">-- Pilih Area --</option>
                             @foreach($areas as $area)
-                            <option value="{{ $area }}" {{ old('area') == $area ? 'selected' : '' }}>
-                                {{ ucfirst($area) }}
-                            </option>
+                                <option value="{{ $area }}" {{ old('area') == $area ? 'selected' : '' }}>
+                                    {{ ucfirst($area) }}
+                                </option>
                             @endforeach
                         </select>
                         @error('area')
-                        <p class="mt-1 text-sm text-red-600">{{ $errors->first('area') }}</p>
+                            <p class="mt-1 text-sm text-red-600">{{ $errors->first('area') }}</p>
                         @enderror
                     </div>
 
                     <div>
                         <label for="master_posyandu_id" class="block text-sm font-medium text-gray-700 mb-2">Posyandu</label>
-                        <select name="master_posyandu_id" id="master_posyandu_id"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('master_posyandu_id') border-red-300 @enderror" required>
+                        <select name="master_posyandu_id" id="master_posyandu_id" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('master_posyandu_id') border-red-300 @enderror" required>
                             <option value="">-- Pilih Posyandu --</option>
                             @foreach($posyandus as $posyandu)
-                            <option value="{{ $posyandu->id }}" {{ old('master_posyandu_id') == $posyandu->id ? 'selected' : '' }}>
-                                {{ $posyandu->nama_posyandu }}
-                            </option>
+                                <option value="{{ $posyandu->id }}" {{ old('master_posyandu_id') == $posyandu->id ? 'selected' : '' }}>
+                                    {{ $posyandu->nama_posyandu }}
+                                </option>
                             @endforeach
                         </select>
                         @error('master_posyandu_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $errors->first('master_posyandu_id') }}</p>
+                            <p class="mt-1 text-sm text-red-600">{{ $errors->first('master_posyandu_id') }}</p>
                         @enderror
                     </div>
 
                     <div>
                         <label for="master_desa_id" class="block text-sm font-medium text-gray-700 mb-2">Desa</label>
-                        <select name="master_desa_id" id="master_desa_id"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('master_desa_id') border-red-300 @enderror" required>
+                        <select name="master_desa_id" id="master_desa_id" 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('master_desa_id') border-red-300 @enderror" required>
                             <option value="">-- Pilih Desa --</option>
                             @foreach($desas as $desa)
-                            <option value="{{ $desa->id }}" {{ old('master_desa_id') == $desa->id ? 'selected' : '' }}>
-                                {{ $desa->nama_desa }}
-                            </option>
+                                <option value="{{ $desa->id }}" {{ old('master_desa_id') == $desa->id ? 'selected' : '' }}>
+                                    {{ $desa->nama_desa }}
+                                </option>
                             @endforeach
                         </select>
                         @error('master_desa_id')
-                        <p class="mt-1 text-sm text-red-600">{{ $errors->first('master_desa_id') }}</p>
+                            <p class="mt-1 text-sm text-red-600">{{ $errors->first('master_desa_id') }}</p>
                         @enderror
+                    </div>
+                </div>
+
+                <!-- Info Admin Tools -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <svg class="w-5 h-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm font-medium text-yellow-800">Akses Admin</p>
+                            <p class="text-xs text-yellow-700">Jika posyandu/desa belum tersedia, silahkan tambah melalui menu Master Data</p>
+                            <div class="mt-2 space-x-2">
+                                <a href="{{ route('balita.master-posyandu.create') }}" 
+                                   class="inline-flex items-center text-xs text-yellow-700 hover:text-yellow-900 underline">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Tambah Posyandu
+                                </a>
+                                <a href="{{ route('balita.master-desa.create') }}"
+                                   class="inline-flex items-center text-xs text-yellow-700 hover:text-yellow-900 underline">
+                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                    Tambah Desa
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 @else
@@ -254,9 +284,37 @@
                             <p class="text-blue-600">{{ auth()->user()->village ?? 'Belum ditentukan' }}</p>
                         </div>
                     </div>
+                    @if(!auth()->user()->area || !auth()->user()->posyandu_name || !auth()->user()->village)
+                        <p class="text-xs text-blue-600 mt-2">
+                            <em>Data lokasi akan otomatis terisi dari profil Anda</em>
+                        </p>
+                    @endif
                 </div>
                 @endif
             </div>
+
+            <!-- Info Lokasi Terpilih (untuk admin) -->
+            @if(auth()->user()->isAdmin())
+            <div id="location-info" class="bg-green-50 border border-green-200 rounded-lg p-4" style="display: none;">
+                <h6 class="text-sm font-medium text-green-800 mb-2">Informasi Lokasi Terpilih</h6>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <span class="font-medium text-green-700">Area:</span>
+                        <p class="text-green-600" id="info-area-name">-</p>
+                    </div>
+                    <div>
+                        <span class="font-medium text-green-700">Posyandu:</span>
+                        <p class="text-green-600" id="info-posyandu-name">-</p>
+                        <p class="text-xs text-green-500" id="info-posyandu-alamat">-</p>
+                    </div>
+                    <div>
+                        <span class="font-medium text-green-700">Desa:</span>
+                        <p class="text-green-600" id="info-desa-name">-</p>
+                        <p class="text-xs text-green-500" id="info-desa-penduduk">-</p>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
@@ -310,21 +368,39 @@
         
         [rtInput, rwInput].forEach(input => {
             if (input) {
+                // Event 'input' - hanya validasi angka dan batasi panjang, JANGAN auto-format
                 input.addEventListener('input', function(e) {
+                    // Hanya izinkan angka
                     this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    // Batasi maksimal 3 karakter
                     if (this.value.length > 3) {
                         this.value = this.value.slice(0, 3);
                     }
-                    // Auto format dengan leading zero
-                    if (this.value.length > 0) {
-                        this.value = this.value.padStart(3, '0');
-                    }
+                    
+                    // Update preview tanpa format padding
                     updateAddressPreview();
                 });
                 
+                // Event 'blur' - format dengan leading zero HANYA ketika selesai input
                 input.addEventListener('blur', function() {
-                    if (this.value && this.value !== '000') {
-                        this.value = this.value.padStart(3, '0');
+                    if (this.value && this.value !== '000' && this.value.length > 0) {
+                        // Hilangkan leading zero dulu, baru format ulang
+                        const cleanValue = parseInt(this.value, 10);
+                        if (cleanValue > 0) {
+                            this.value = cleanValue.toString().padStart(3, '0');
+                        }
+                        updateAddressPreview();
+                    }
+                });
+                
+                // Event 'focus' - hilangkan leading zero untuk memudahkan edit
+                input.addEventListener('focus', function() {
+                    if (this.value && this.value.startsWith('0')) {
+                        const cleanValue = parseInt(this.value, 10);
+                        if (cleanValue > 0) {
+                            this.value = cleanValue.toString();
+                        }
                     }
                 });
             }
@@ -353,8 +429,15 @@
             
             const addressParts = [];
             
-            if (rt) addressParts.push(`RT ${rt}`);
-            if (rw) addressParts.push(`RW ${rw}`);
+            // Format untuk preview (dengan padding jika ada nilai)
+            if (rt) {
+                const rtFormatted = rt.length > 0 ? rt.padStart(3, '0') : rt;
+                addressParts.push(`RT ${rtFormatted}`);
+            }
+            if (rw) {
+                const rwFormatted = rw.length > 0 ? rw.padStart(3, '0') : rw;
+                addressParts.push(`RW ${rwFormatted}`);
+            }
             if (dusun) addressParts.push(`Dusun ${dusun}`);
             if (desa) addressParts.push(desa);
             if (kecamatan) addressParts.push(`Kec. ${kecamatan}`);
@@ -363,45 +446,51 @@
             const previewDiv = document.getElementById('alamat-preview');
             const previewText = document.getElementById('alamat-preview-text');
             
-            if (addressParts.length > 0) {
-                previewText.textContent = addressParts.join(', ');
-                previewDiv.style.display = 'block';
-            } else {
-                previewDiv.style.display = 'none';
+            if (previewDiv && previewText) {
+                if (addressParts.length > 0) {
+                    previewText.textContent = addressParts.join(', ');
+                    previewDiv.style.display = 'block';
+                } else {
+                    previewDiv.style.display = 'none';
+                }
             }
         }
 
         // Calculate age when birth date changes
         const tanggalLahirInput = document.getElementById('tanggal_lahir');
         if (tanggalLahirInput) {
-            tanggalLahirInput.addEventListener('change', function() {
-                const birthDate = new Date(this.value);
-                const today = new Date();
-
-                if (birthDate > today) {
-                    alert('Tanggal lahir tidak boleh lebih dari hari ini');
-                    this.value = '';
+            tanggalLahirInput.addEventListener('blur', function() {
+                // Hanya validasi jika ada value dan lengkap
+                if (!this.value || this.value.length < 10) {
                     return;
                 }
 
-                // Calculate age
-                let years = today.getFullYear() - birthDate.getFullYear();
-                let months = today.getMonth() - birthDate.getMonth();
+                const birthDate = new Date(this.value);
+                const today = new Date();
 
-                if (today.getDate() < birthDate.getDate()) {
-                    months--;
+                // Cek tanggal valid
+                if (isNaN(birthDate.getTime())) {
+                    return;
                 }
 
-                if (months < 0) {
-                    years--;
-                    months += 12;
-                }
-
-                // Check if age is more than 5 years
-                const totalMonths = (years * 12) + months;
-                if (totalMonths > 60) {
-                    alert('Balita maksimal berusia 5 tahun (60 bulan)');
+                // Cek tidak boleh masa depan
+                if (birthDate > today) {
+                    alert('Tanggal lahir tidak boleh lebih dari hari ini');
                     this.value = '';
+                    this.focus();
+                    return;
+                }
+
+                // Hitung umur
+                const ageInMonths = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24 * 30.44));
+                
+                // Cek maksimal 5 tahun (60 bulan)
+                if (ageInMonths > 60) {
+                    const years = Math.floor(ageInMonths / 12);
+                    const months = ageInMonths % 12;
+                    alert(`Balita maksimal berusia 5 tahun.\nUsia: ${years} tahun ${months} bulan`);
+                    this.value = '';
+                    this.focus();
                 }
             });
         }

@@ -47,7 +47,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Total Pengukuran</p>
-                    <p class="text-2xl font-bold text-gray-900">{{ $pengukuran->total() }}</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</p>
                 </div>
             </div>
         </div>
@@ -61,9 +61,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Stunting</p>
-                    <p class="text-2xl font-bold text-gray-900">
-                        {{ $pengukuran->filter(function($p) { return $p->prediksiGizi && $p->prediksiGizi->prediksi_status === 'stunting'; })->count() }}
-                    </p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['stunting'] }}</p>
                 </div>
             </div>
         </div>
@@ -77,9 +75,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Berisiko</p>
-                    <p class="text-2xl font-bold text-gray-900">
-                        {{ $pengukuran->filter(function($p) { return $p->prediksiGizi && $p->prediksiGizi->prediksi_status === 'berisiko_stunting'; })->count() }}
-                    </p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['berisiko_stunting'] }}</p>
                 </div>
             </div>
         </div>
@@ -93,9 +89,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-600">Normal</p>
-                    <p class="text-2xl font-bold text-gray-900">
-                        {{ $pengukuran->filter(function($p) { return $p->prediksiGizi && $p->prediksiGizi->prediksi_status === 'normal'; })->count() }}
-                    </p>
+                    <p class="text-2xl font-bold text-gray-900">{{ $stats['normal'] }}</p>
                 </div>
             </div>
         </div>
@@ -103,7 +97,7 @@
 
     <!-- Filter Section -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <form method="GET" action="{{ route('pengukuran.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <form method="GET" action="{{ route('pengukuran.index') }}" class="grid grid-cols-1 md:grid-cols-5 gap-4">
             <!-- Input: Cari Nama Balita -->
             <div>
                 <label for="search" class="block text-sm font-medium text-gray-700 mb-2">Cari Nama Balita</label>
@@ -125,6 +119,18 @@
                 </select>
             </div>
 
+            <!-- Input: Urutkan -->
+            <div>
+                <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">Urutkan</label>
+                <select name="sort" id="sort"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="date_desc" {{ request('sort') === 'date_desc' || !request('sort') ? 'selected' : '' }}>Tanggal Terbaru</option>
+                    <option value="date_asc" {{ request('sort') === 'date_asc' ? 'selected' : '' }}>Tanggal Terlama</option>
+                    <option value="name_asc" {{ request('sort') === 'name_asc' ? 'selected' : '' }}>Nama A-Z</option>
+                    <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>Nama Z-A</option>
+                </select>
+            </div>
+
             <!-- Input: Dari Tanggal -->
             <div>
                 <label for="start_date" class="block text-sm font-medium text-gray-700 mb-2">Dari Tanggal</label>
@@ -138,18 +144,25 @@
                 <div class="flex items-end space-x-2">
                     <input type="date" name="end_date" id="end_date" value="{{ request('end_date') }}"
                         class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-
                 </div>
             </div>
-            <div>
+            
+            <!-- Tombol Filter & Reset (row baru) -->
+            <div class="md:col-span-5 flex space-x-2">
                 <button type="submit"
-                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors duration-200 whitespace-nowrap">
-                    Filter
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                    </svg>
+                    <span>Filter</span>
                 </button>
 
                 <a href="{{ route('pengukuran.index') }}"
-                    class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 whitespace-nowrap">
-                    Reset
+                    class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors duration-200 flex items-center space-x-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                    <span>Reset</span>
                 </a>
             </div>
         </form>
@@ -253,119 +266,91 @@
                                 </form>
                             </div>
                         </td>
-                        {{-- <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <div class="flex items-center justify-end space-x-2">
-                                <a href="{{ route('pengukuran.show', $item) }}"
-                        class="text-blue-600 hover:text-blue-900 p-1 rounded">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                        </svg>
-                        </a>
-                        <a href="{{ route('pengukuran.edit', $item) }}"
-                            class="text-indigo-600 hover:text-indigo-900 p-1 rounded">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                            </svg>
-                        </a>
-                        <form action="{{ route('pengukuran.destroy', $item) }}" method="POST" class="inline">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit"
-                                onclick="return confirm('Apakah Anda yakin ingin menghapus data pengukuran ini?')"
-                                class="text-red-600 hover:text-red-900 p-1 rounded">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="px-6 py-12 text-center">
+                            <div class="flex flex-col items-center">
+                                <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                 </svg>
-                            </button>
-                        </form>
+                                <p class="text-gray-500 text-lg font-medium">Belum ada data pengukuran</p>
+                                <p class="text-gray-400 text-sm mt-1">Klik tombol "Tambah Pengukuran" untuk memulai</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-        </td> --}}
-        </tr>
-        @empty
-        <tr>
-            <td colspan="8" class="px-6 py-12 text-center">
-                <div class="flex flex-col items-center">
-                    <svg class="w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-                    </svg>
-                    <p class="text-gray-500 text-lg font-medium">Belum ada data pengukuran</p>
-                    <p class="text-gray-400 text-sm mt-1">Klik tombol "Tambah Pengukuran" untuk memulai</p>
+
+        <!-- Custom Pagination -->
+        @if($pengukuran->hasPages())
+        <div class="bg-white px-6 py-4 border-t border-gray-200">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                <!-- Results Info -->
+                <div class="flex items-center text-sm text-gray-700">
+                    <span>Menampilkan</span>
+                    <span class="font-medium mx-1">{{ $pengukuran->firstItem() }}</span>
+                    <span>sampai</span>
+                    <span class="font-medium mx-1">{{ $pengukuran->lastItem() }}</span>
+                    <span>dari</span>
+                    <span class="font-medium mx-1">{{ $pengukuran->total() }}</span>
+                    <span>data</span>
                 </div>
-            </td>
-        </tr>
-        @endforelse
-        </tbody>
-        </table>
-    </div>
 
-    <!-- Custom Pagination -->
-    @if($pengukuran->hasPages())
-    <div class="bg-white px-6 py-4 border-t border-gray-200">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-            <!-- Results Info -->
-            <div class="flex items-center text-sm text-gray-700">
-                <span>Menampilkan</span>
-                <span class="font-medium mx-1">{{ $pengukuran->firstItem() }}</span>
-                <span>sampai</span>
-                <span class="font-medium mx-1">{{ $pengukuran->lastItem() }}</span>
-                <span>dari</span>
-                <span class="font-medium mx-1">{{ $pengukuran->total() }}</span>
-                <span>data</span>
-            </div>
-
-            <!-- Pagination Links -->
-            <div class="flex items-center justify-center sm:justify-end">
-                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                    {{-- Previous Page Link --}}
-                    @if ($pengukuran->onFirstPage())
-                    <span class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-400 cursor-not-allowed">
-                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="ml-1 hidden sm:block">Previous</span>
-                    </span>
-                    @else
-                    <a href="{{ $pengukuran->appends(request()->query())->previousPageUrl() }}"
-                        class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200">
-                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                        </svg>
-                        <span class="ml-1 hidden sm:block">Previous</span>
-                    </a>
-                    @endif
-
-                    {{-- Pagination Elements --}}
-                    @php
-                    $start = max(1, $pengukuran->currentPage() - 2);
-                    $end = min($pengukuran->lastPage(), $pengukuran->currentPage() + 2);
-                    @endphp
-
-                    {{-- First Page --}}
-                    @if($start > 1)
-                    <a href="{{ $pengukuran->appends(request()->query())->url(1) }}"
-                        class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                        1
-                    </a>
-                    @if($start > 2)
-                    <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
-                        ...
-                    </span>
-                    @endif
-                    @endif
-
-                    {{-- Page Numbers --}}
-                    @for($page = $start; $page <= $end; $page++)
-                        @if ($page==$pengukuran->currentPage())
-                        <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
-                            {{ $page }}
+                <!-- Pagination Links -->
+                <div class="flex items-center justify-center sm:justify-end">
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {{-- Previous Page Link --}}
+                        @if ($pengukuran->onFirstPage())
+                        <span class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-1 hidden sm:block">Previous</span>
                         </span>
                         @else
-                        <a href="{{ $pengukuran->appends(request()->query())->url($page) }}"
-                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                            {{ $page }}
+                        <a href="{{ $pengukuran->appends(request()->query())->previousPageUrl() }}"
+                            class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200">
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                            </svg>
+                            <span class="ml-1 hidden sm:block">Previous</span>
                         </a>
                         @endif
+
+                        {{-- Pagination Elements --}}
+                        @php
+                        $start = max(1, $pengukuran->currentPage() - 2);
+                        $end = min($pengukuran->lastPage(), $pengukuran->currentPage() + 2);
+                        @endphp
+
+                        {{-- First Page --}}
+                        @if($start > 1)
+                        <a href="{{ $pengukuran->appends(request()->query())->url(1) }}"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                            1
+                        </a>
+                        @if($start > 2)
+                        <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                            ...
+                        </span>
+                        @endif
+                        @endif
+
+                        {{-- Page Numbers --}}
+                        @for($page = $start; $page <= $end; $page++)
+                            @if ($page == $pengukuran->currentPage())
+                            <span class="relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600">
+                                {{ $page }}
+                            </span>
+                            @else
+                            <a href="{{ $pengukuran->appends(request()->query())->url($page) }}"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                {{ $page }}
+                            </a>
+                            @endif
                         @endfor
 
                         {{-- Last Page --}}
@@ -374,35 +359,44 @@
                                 <span class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
                                     ...
                                 </span>
-                                @endif
-                                <a href="{{ $pengukuran->appends(request()->query())->url($pengukuran->lastPage()) }}"
-                                    class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
-                                    {{ $pengukuran->lastPage() }}
-                                </a>
-                                @endif
+                            @endif
+                            <a href="{{ $pengukuran->appends(request()->query())->url($pengukuran->lastPage()) }}"
+                                class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+                                {{ $pengukuran->lastPage() }}
+                            </a>
+                        @endif
 
-                                {{-- Next Page Link --}}
-                                @if ($pengukuran->hasMorePages())
-                                <a href="{{ $pengukuran->appends(request()->query())->nextPageUrl() }}"
-                                    class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200">
-                                    <span class="mr-1 hidden sm:block">Next</span>
-                                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </a>
-                                @else
-                                <span class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-400 cursor-not-allowed">
-                                    <span class="mr-1 hidden sm:block">Next</span>
-                                    <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                                    </svg>
-                                </span>
-                                @endif
-                </nav>
+                        {{-- Next Page Link --}}
+                        @if ($pengukuran->hasMorePages())
+                        <a href="{{ $pengukuran->appends(request()->query())->nextPageUrl() }}"
+                            class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700 transition-colors duration-200">
+                            <span class="mr-1 hidden sm:block">Next</span>
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </a>
+                        @else
+                        <span class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-gray-50 text-sm font-medium text-gray-400 cursor-not-allowed">
+                            <span class="mr-1 hidden sm:block">Next</span>
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                        @endif
+                    </nav>
+                </div>
             </div>
         </div>
+        @endif
     </div>
-    @endif
 </div>
-</div>
+
+<!-- Auto-submit script untuk sorting -->
+<script>
+document.getElementById('sort').addEventListener('change', function() {
+    // Auto submit form ketika sorting berubah
+    this.form.submit();
+});
+</script>
+
 @endsection

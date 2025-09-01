@@ -53,6 +53,7 @@
                             @foreach($posyandus as $posyandu)
                             <option value="{{ $posyandu->id }}"
                                 data-area="{{ $posyandu->area }}"
+                                data-alamat="{{ $posyandu->alamat }}"
                                 {{ old('master_posyandu_id') == $posyandu->id ? 'selected' : '' }}>
                                 {{ $posyandu->nama_posyandu }} ({{ ucfirst($posyandu->area) }})
                             </option>
@@ -152,7 +153,7 @@
 
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-                <a href="{{ route('balita.master-desa.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+                <a href="{{ route('balita.create') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
                     Batal
                 </a>
                 <button type="submit"
@@ -206,11 +207,14 @@
                     const selectedOption = this.options[this.selectedIndex];
                     const posyanduName = selectedOption.textContent.split(' (')[0];
                     const posyanduArea = selectedOption.getAttribute('data-area');
+                    const posyanduAlamat = selectedOption.getAttribute('data-alamat');
+                    const posyanduKetua = selectedOption.getAttribute('data-ketua');
+                    const posyanduKontak = selectedOption.getAttribute('data-kontak');
 
                     // Show posyandu info
                     document.getElementById('info-posyandu-nama').textContent = posyanduName;
                     document.getElementById('info-posyandu-area').textContent = posyanduArea ? posyanduArea.charAt(0).toUpperCase() + posyanduArea.slice(1) : '-';
-                    document.getElementById('info-posyandu-alamat').textContent = 'Loading...';
+                    document.getElementById('info-posyandu-alamat').textContent = posyanduAlamat || 'Alamat tidak tersedia';
 
                     posyanduInfo.style.display = 'block';
 

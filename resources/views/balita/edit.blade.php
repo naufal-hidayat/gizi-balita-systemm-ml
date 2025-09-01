@@ -391,34 +391,38 @@
         // Calculate age when birth date changes
         const tanggalLahirInput = document.getElementById('tanggal_lahir');
         if (tanggalLahirInput) {
-            tanggalLahirInput.addEventListener('change', function() {
-                const birthDate = new Date(this.value);
-                const today = new Date();
-
-                if (birthDate > today) {
-                    alert('Tanggal lahir tidak boleh lebih dari hari ini');
-                    this.value = '';
+            tanggalLahirInput.addEventListener('blur', function() {
+                // Hanya validasi jika ada value dan lengkap
+                if (!this.value || this.value.length < 10) {
                     return;
                 }
 
-                // Calculate age
-                let years = today.getFullYear() - birthDate.getFullYear();
-                let months = today.getMonth() - birthDate.getMonth();
+                const birthDate = new Date(this.value);
+                const today = new Date();
 
-                if (today.getDate() < birthDate.getDate()) {
-                    months--;
+                // Cek tanggal valid
+                if (isNaN(birthDate.getTime())) {
+                    return;
                 }
 
-                if (months < 0) {
-                    years--;
-                    months += 12;
-                }
-
-                // Check if age is more than 5 years
-                const totalMonths = (years * 12) + months;
-                if (totalMonths > 60) {
-                    alert('Balita maksimal berusia 5 tahun (60 bulan)');
+                // Cek tidak boleh masa depan
+                if (birthDate > today) {
+                    alert('Tanggal lahir tidak boleh lebih dari hari ini');
                     this.value = '';
+                    this.focus();
+                    return;
+                }
+
+                // Hitung umur
+                const ageInMonths = Math.floor((today - birthDate) / (1000 * 60 * 60 * 24 * 30.44));
+                
+                // Cek maksimal 5 tahun (60 bulan)
+                if (ageInMonths > 60) {
+                    const years = Math.floor(ageInMonths / 12);
+                    const months = ageInMonths % 12;
+                    alert(`Balita maksimal berusia 5 tahun.\nUsia: ${years} tahun ${months} bulan`);
+                    this.value = '';
+                    this.focus();
                 }
             });
         }

@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Pengukuran;
 use App\Models\Balita;
+use App\Services\FuzzyAhpService;
 use Carbon\Carbon;
 
 class PengukuranSeeder extends Seeder
@@ -95,64 +96,119 @@ class PengukuranSeeder extends Seeder
             return;
         }
 
+        // Cek apakah user dengan ID 1 ada
+        if (!\App\Models\User::find(1)) {
+            $this->command->error('User dengan ID 1 tidak ditemukan. Pastikan user admin sudah dibuat.');
+            return;
+        }
+
         foreach ($balitaList as $index => $balita) {
+            // Skip jika sudah ada pengukuran untuk balita ini
+            if (Pengukuran::where('balita_id', $balita->id)->exists()) {
+                $this->command->line('Pengukuran untuk balita ' . $balita->nama_balita . ' sudah ada, skip...');
+                continue;
+            }
+
             // Ambil data pengukuran sesuai index
             $pengukuran = $pengukuranData[$index];
             
             // Generate tanggal pengukuran yang realistis (1-3 bulan terakhir)
             $tanggalPengukuran = Carbon::now()->subDays(rand(30, 90));
             
+            // Pastikan tanggal pengukuran tidak sebelum tanggal lahir balita
+            $tanggalLahirBalita = Carbon::parse($balita->tanggal_lahir);
+            if ($tanggalPengukuran->lt($tanggalLahirBalita)) {
+                $tanggalPengukuran = $tanggalLahirBalita->copy()->addDays(rand(30, 60));
+            }
+            
             // Hitung umur dalam bulan berdasarkan tanggal lahir dan tanggal pengukuran
-            $umurBulan = Carbon::parse($balita->tanggal_lahir)->diffInMonths($tanggalPengukuran);
+            $umurBulan = $tanggalLahirBalita->diffInMonths($tanggalPengukuran);
             
-            // Generate data tambahan sesuai ketentuan
-            $dataSeeder = [
-                'balita_id' => $balita->id,
-                'tanggal_pengukuran' => $tanggalPengukuran,
-                'umur_bulan' => $umurBulan,
-                'berat_badan' => $pengukuran['berat_badan'],
-                'tinggi_badan' => $pengukuran['tinggi_badan'],
-                
-                // Lingkar kepala dan lingkar lengan bisa kosong (nullable)
-                'lingkar_kepala' => null,
-                'lingkar_lengan' => null,
-                
-                // ASI eksklusif semua 'ya'
-                'asi_eksklusif' => 'ya',
-                
-                // Status imunisasi lengkap semua 'ya'
-                'imunisasi_lengkap' => 'ya',
-                
-                // Riwayat penyakit kosong
-                'riwayat_penyakit' => null,
-                
-                // Pendapatan rata-rata semua di 1jt-2jt (1000000 berdasarkan mapping di controller)
-                'pendapatan_keluarga' => 1000000,
-                
-                // Pendidikan ibu rata-rata semua SMA/sederajat
-                'pendidikan_ibu' => 'sma',
-                
-                // Anggota keluarga tidak lebih dari 5 (random 3-5)
-                'jumlah_anggota_keluarga' => rand(3, 5),
-                
-                // Akses air bersih semua 'ya'
-                'akses_air_bersih' => 'ya',
-                
-                // Sanitasi layak semua 'ya'
-                'sanitasi_layak' => 'ya',
-                
-                // User ID (admin yang membuat)
-                'user_id' => 1,
-                
-                // Timestamps
-                'created_at' => $tanggalPengukuran,
-                'updated_at' => $tanggalPengukuran,
-            ];
+            // Pastikan umur dalam range yang valid (0-60 bulan)
+            $umurBulan = max(0, min(60, $umurBulan));
             
-            Pengukuran::create($dataSeeder);
+            try {
+                // Generate data tambahan sesuai ketentuan
+                $dataSeeder = [
+                    'balita_id' => $balita->id,
+                    'tanggal_pengukuran' => $tanggalPengukuran->format('Y-m-d'),
+                    'umur_bulan' => $umurBulan,
+                    'berat_badan' => $pengukuran['berat_badan'],
+                    'tinggi_badan' => $pengukuran['tinggi_badan'],
+                    
+                    // Lingkar kepala dan lingkar lengan bisa kosong (nullable)
+                    'lingkar_kepala' => null,
+                    'lingkar_lengan' => null,
+                    
+                    // ASI eksklusif semua 'ya'
+                    'asi_eksklusif' => 'ya',
+                    
+                    // Status imunisasi lengkap semua 'ya'
+                    'imunisasi_lengkap' => 'ya',
+                    
+                    // Riwayat penyakit kosong
+                    'riwayat_penyakit' => null,
+                    
+                    // Pendapatan rata-rata semua di 1jt-2jt (1000000 berdasarkan mapping di controller)
+                    'pendapatan_keluarga' => 1000000,
+                    
+                    // Pendidikan ibu rata-rata semua SMA/sederajat
+                    'pendidikan_ibu' => 'sma',
+                    
+                    // Anggota keluarga tidak lebih dari 5 (random 3-5)
+                    'jumlah_anggota_keluarga' => rand(3, 5),
+                    
+                    // Akses air bersih semua 'ya'
+                    'akses_air_bersih' => 'ya',
+                    
+                    // Sanitasi layak semua 'ya'
+                    'sanitasi_layak' => 'ya',
+                    
+                    // User ID (admin yang membuat)
+                    'user_id' => 1,
+                    
+                    // Timestamps
+                    'created_at' => $tanggalPengukuran,
+                    'updated_at' => $tanggalPengukuran,
+                ];
+                
+                Pengukuran::create($dataSeeder);
+                $this->command->line('✓ Berhasil membuat pengukuran untuk: ' . $balita->nama_balita);
+                
+                // Generate prediksi gizi menggunakan FuzzyAhpService
+                $pengukuranRecord = Pengukuran::where('balita_id', $balita->id)
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+                
+                if ($pengukuranRecord) {
+                    try {
+                        // Resolve FuzzyAhpService dari service container
+                        $fuzzyAhpService = app(FuzzyAhpService::class);
+                        $prediction = $fuzzyAhpService->predictNutritionalStatus($pengukuranRecord);
+                        
+                        if ($prediction) {
+                            $this->command->line('  ✓ Prediksi gizi berhasil dibuat: ' . $prediction->status_gizi);
+                        } else {
+                            $this->command->warn('  ⚠ Gagal membuat prediksi gizi untuk: ' . $balita->nama_balita);
+                        }
+                    } catch (\Exception $predictionError) {
+                        $this->command->error('  ✗ Error prediksi untuk ' . $balita->nama_balita . ': ' . $predictionError->getMessage());
+                    }
+                } else {
+                    $this->command->error('  ✗ Tidak dapat menemukan data pengukuran yang baru dibuat untuk: ' . $balita->nama_balita);
+                }
+                
+            } catch (\Exception $e) {
+                $this->command->error('✗ Error untuk balita ' . $balita->nama_balita . ': ' . $e->getMessage());
+                continue;
+            }
         }
 
         $this->command->info('Berhasil menambahkan ' . count($pengukuranData) . ' data pengukuran');
+        
+        // Tampilkan statistik prediksi
+        $this->showPredictionStatistics();
+        
         $this->command->line('Detail seeder:');
         $this->command->line('- ASI Eksklusif: Semua YA');
         $this->command->line('- Status Imunisasi: Semua YA (Lengkap)');
@@ -164,5 +220,42 @@ class PengukuranSeeder extends Seeder
         $this->command->line('- Lingkar Kepala & Lingkar Lengan: Kosong (NULL)');
         $this->command->line('- Riwayat Penyakit: Kosong (NULL)');
         $this->command->line('- Umur Bulan: Dihitung otomatis berdasarkan tanggal lahir dan tanggal pengukuran');
+        $this->command->line('- Prediksi Gizi: Digenerate otomatis menggunakan FuzzyAhpService');
+    }
+
+    private function showPredictionStatistics()
+    {
+        try {
+            // Ambil statistik prediksi yang baru dibuat
+            $predictions = \App\Models\PrediksiGizi::whereDate('created_at', today())
+                ->with('pengukuran.balita')
+                ->get()
+                ->groupBy('status_gizi');
+
+            if ($predictions->isEmpty()) {
+                $this->command->warn('Tidak ada prediksi yang berhasil dibuat hari ini');
+                return;
+            }
+
+            $this->command->line('');
+            $this->command->info('=== STATISTIK PREDIKSI GIZI ===');
+            
+            foreach ($predictions as $status => $items) {
+                $count = $items->count();
+                $percentage = round(($count / $predictions->flatten()->count()) * 100, 1);
+                $this->command->line("- {$status}: {$count} balita ({$percentage}%)");
+                
+                // Tampilkan beberapa contoh nama balita
+                $sampleNames = $items->take(3)->pluck('pengukuran.balita.nama_balita')->implode(', ');
+                if ($items->count() > 3) {
+                    $sampleNames .= ', dll.';
+                }
+                $this->command->line("  Contoh: {$sampleNames}");
+            }
+            
+            $this->command->line('');
+        } catch (\Exception $e) {
+            $this->command->error('Error saat menampilkan statistik: ' . $e->getMessage());
+        }
     }
 }

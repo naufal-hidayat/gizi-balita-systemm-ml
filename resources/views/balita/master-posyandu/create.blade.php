@@ -121,7 +121,7 @@
 
             <!-- Submit Buttons -->
             <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
-                <a href="{{ route('balita.master-posyandu.index') }}"
+                <a href="{{ route('balita.create') }}"
                     class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
                     Batal
                 </a>

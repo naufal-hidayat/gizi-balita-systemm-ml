@@ -235,15 +235,27 @@
             </h3>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Pendapatan Keluarga - Fixed as Dropdown -->
                 <div>
-                    <label for="pendapatan_keluarga" class="block text-sm font-medium text-gray-700 mb-2">Pendapatan Keluarga (Rp/bulan) *</label>
-                    <input type="number" name="pendapatan_keluarga" id="pendapatan_keluarga" min="0" step="10000"
-                           value="{{ old('pendapatan_keluarga', $pengukuran->pendapatan_keluarga) }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pendapatan_keluarga') border-red-300 @enderror"
-                           placeholder="Contoh: 2500000">
+                    <label for="pendapatan_keluarga" class="block text-sm font-medium text-gray-700 mb-2">Pendapatan Keluarga (per bulan) *</label>
+                    <select name="pendapatan_keluarga" id="pendapatan_keluarga" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('pendapatan_keluarga') border-red-300 @enderror">
+                        <option value="">-- Pilih Kelompok Pendapatan --</option>
+                        @foreach($pendapatanGroups as $key => $label)
+                            <option value="{{ $key }}" 
+                                {{ old('pendapatan_keluarga', $currentPendapatanGroup) == $key ? 'selected' : '' }}>
+                                {{ $label }}
+                            </option>
+                        @endforeach
+                    </select>
                     @error('pendapatan_keluarga')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                    
+                    <!-- Info pendapatan saat ini -->
+                    <div class="mt-2 text-xs text-gray-500">
+                        <p>Pendapatan saat ini: Rp {{ number_format($pengukuran->pendapatan_keluarga, 0, ',', '.') }}</p>
+                    </div>
                 </div>
 
                 <div>
@@ -265,9 +277,9 @@
                 <div>
                     <label for="jumlah_anggota_keluarga" class="block text-sm font-medium text-gray-700 mb-2">Jumlah Anggota Keluarga *</label>
                     <input type="number" name="jumlah_anggota_keluarga" id="jumlah_anggota_keluarga" min="1" max="20"
-                           value="{{ old('jumlah_anggota_keluarga', $pengukuran->jumlah_anggota_keluarga) }}"
-                           class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('jumlah_anggota_keluarga') border-red-300 @enderror"
-                           placeholder="Contoh: 4">
+                        value="{{ old('jumlah_anggota_keluarga', $pengukuran->jumlah_anggota_keluarga) }}"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('jumlah_anggota_keluarga') border-red-300 @enderror"
+                        placeholder="Contoh: 4">
                     @error('jumlah_anggota_keluarga')
                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
