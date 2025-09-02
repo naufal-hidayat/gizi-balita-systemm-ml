@@ -1,168 +1,186 @@
 <?php
 
-namespace Database\Seeders;
+namespace App\Http\Requests;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
-use App\Models\Pengukuran;
-use App\Models\Balita;
+use Illuminate\Foundation\Http\FormRequest;
 use Carbon\Carbon;
 
-class PengukuranSeeder extends Seeder
+class PengukuranRequest extends FormRequest
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function authorize()
     {
-        // Data berat dan tinggi badan sesuai urutan balita (dari Adiba sampai Ziandra)
-        $pengukuranData = [
-            ['berat_badan' => 13, 'tinggi_badan' => 85.5],      // Adiba el Putri
-            ['berat_badan' => 16, 'tinggi_badan' => 107],       // AHSAN
-            ['berat_badan' => 10.6, 'tinggi_badan' => 75],      // ALEEA SHANUM A
-            ['berat_badan' => 8.3, 'tinggi_badan' => 69.6],     // ALESHA NAURA
-            ['berat_badan' => 14.6, 'tinggi_badan' => 92],      // Alesya Auristela
-            ['berat_badan' => 10.8, 'tinggi_badan' => 88.5],    // Alfareza
-            ['berat_badan' => 8.2, 'tinggi_badan' => 65],       // ALVIAN P
-            ['berat_badan' => 7.9, 'tinggi_badan' => 62.5],     // ALZAIDAN F
-            ['berat_badan' => 10.9, 'tinggi_badan' => 79.5],    // AMEENA MAULIDA
-            ['berat_badan' => 9.8, 'tinggi_badan' => 80],       // ANISA NADHIRA
-            ['berat_badan' => 10.7, 'tinggi_badan' => 83],      // ARA SHAZA
-            ['berat_badan' => 10.5, 'tinggi_badan' => 90.5],    // Arfan m.fawaz
-            ['berat_badan' => 13.5, 'tinggi_badan' => 84.5],    // ARFAN ZAIDAN M
-            ['berat_badan' => 11, 'tinggi_badan' => 80],        // ARHAN ARDIANSYAH
-            ['berat_badan' => 8.2, 'tinggi_badan' => 68.5],     // ARKANZA
-            ['berat_badan' => 11.2, 'tinggi_badan' => 87.5],    // ARRASYA
-            ['berat_badan' => 12.4, 'tinggi_badan' => 89],      // ARRSYA
-            ['berat_badan' => 12.6, 'tinggi_badan' => 88],      // Arshaka Syapiq
-            ['berat_badan' => 8.8, 'tinggi_badan' => 76.8],     // ARSYAP
-            ['berat_badan' => 15, 'tinggi_badan' => 97],        // AULIA
-            ['berat_badan' => 11.2, 'tinggi_badan' => 77],      // AURIEL
-            ['berat_badan' => 5.7, 'tinggi_badan' => 57.1],     // AVIDA
-            ['berat_badan' => 19, 'tinggi_badan' => 106.5],     // AZKA NUR TAJUL ARIFIN
-            ['berat_badan' => 6.6, 'tinggi_badan' => 66],       // AZKIARA
-            ['berat_badan' => 12.4, 'tinggi_badan' => 84.8],    // BILAL DAIFULLOH
-            ['berat_badan' => 14.1, 'tinggi_badan' => 96.5],    // BILQIS
-            ['berat_badan' => 16.2, 'tinggi_badan' => 101.5],   // DAFA OKTAPIAN
-            ['berat_badan' => 7.2, 'tinggi_badan' => 58],       // DAFFA
-            ['berat_badan' => 15.3, 'tinggi_badan' => 103.5],   // GAISKA
-            ['berat_badan' => 12.8, 'tinggi_badan' => 84],      // GEMA FAZIANDRI
-            ['berat_badan' => 15.5, 'tinggi_badan' => 95.5],    // HANINDIRA
-            ['berat_badan' => 11.2, 'tinggi_badan' => 81.3],    // HILYA
-            ['berat_badan' => 4.5, 'tinggi_badan' => 51],       // HISYAM
-            ['berat_badan' => 10.3, 'tinggi_badan' => 80.5],    // HUMAIRA A
-            ['berat_badan' => 11.8, 'tinggi_badan' => 94.5],    // HYKAYATUL
-            ['berat_badan' => 11.2, 'tinggi_badan' => 82.8],    // KANAKA
-            ['berat_badan' => 14, 'tinggi_badan' => 97],        // KHANIA
-            ['berat_badan' => 12.5, 'tinggi_badan' => 87.5],    // LAURA GANTARI
-            ['berat_badan' => 7.5, 'tinggi_badan' => 62],       // M. ARSHAKA S
-            ['berat_badan' => 9.8, 'tinggi_badan' => 72],       // M. ARSYA A
-            ['berat_badan' => 17.2, 'tinggi_badan' => 103.5],   // M. AYDAN Z
-            ['berat_badan' => 9.8, 'tinggi_badan' => 80.8],     // M. QAIS RAMADAN
-            ['berat_badan' => 11.7, 'tinggi_badan' => 87.8],    // MARIAM SITI HAWA
-            ['berat_badan' => 14.8, 'tinggi_badan' => 103.5],   // MIKAYLA
-            ['berat_badan' => 8.8, 'tinggi_badan' => 77.5],     // MIQDAD
-            ['berat_badan' => 11.8, 'tinggi_badan' => 82],      // Naira Syabila
-            ['berat_badan' => 9.8, 'tinggi_badan' => 76],       // NATHAN
-            ['berat_badan' => 8.3, 'tinggi_badan' => 69.6],     // NAZIFA
-            ['berat_badan' => 18.2, 'tinggi_badan' => 100],     // PELANGI
-            ['berat_badan' => 15.7, 'tinggi_badan' => 102.5],   // QAIREEN AZZALEA
-            ['berat_badan' => 9.2, 'tinggi_badan' => 73.5],     // QONITA
-            ['berat_badan' => 13, 'tinggi_badan' => 90.5],      // Radja Al Muiz
-            ['berat_badan' => 15, 'tinggi_badan' => 102],       // RAFKA A.
-            ['berat_badan' => 12.5, 'tinggi_badan' => 84.5],    // RAISA
-            ['berat_badan' => 8.5, 'tinggi_badan' => 69.5],     // RIYAZ M
-            ['berat_badan' => 14.3, 'tinggi_badan' => 103.5],   // RUBY HAVVA
-            ['berat_badan' => 10.5, 'tinggi_badan' => 88],      // SAKILA NUR
-            ['berat_badan' => 12.2, 'tinggi_badan' => 90.5],    // Satria Qirom
-            ['berat_badan' => 13.8, 'tinggi_badan' => 97.5],    // SELFI S.
-            ['berat_badan' => 16.3, 'tinggi_badan' => 99.7],    // SHABIRA
-            ['berat_badan' => 18.2, 'tinggi_badan' => 106.5],   // SHAQUEENA ZAYAAN
-            ['berat_badan' => 12.2, 'tinggi_badan' => 90.5],    // SIDQI
-            ['berat_badan' => 16.2, 'tinggi_badan' => 102],     // SITI AISYAH
-            ['berat_badan' => 10.6, 'tinggi_badan' => 85.5],    // Siti Fauziah
-            ['berat_badan' => 13.5, 'tinggi_badan' => 93.5],    // SYAUQHY
-            ['berat_badan' => 15, 'tinggi_badan' => 102.5],     // ZAHIRA
-            ['berat_badan' => 14.7, 'tinggi_badan' => 93],      // ZAIDAN XAVIER
-            ['berat_badan' => 12.9, 'tinggi_badan' => 91.5],    // ZIANDRA
+        return true;
+    }
+
+    public function rules()
+    {
+        return [
+            'balita_id' => 'required|exists:balita,id',
+            'tanggal_pengukuran' => 'required|date|before_or_equal:today',
+            'umur_bulan' => 'required|integer|min:0|max:60',
+            'berat_badan' => 'required|numeric|min:1|max:50',
+            'tinggi_badan' => 'required|numeric|min:30|max:150',
+            'lingkar_kepala' => 'nullable|numeric|min:25|max:60',
+            'lingkar_lengan' => 'nullable|numeric|min:8|max:25',
+            'asi_eksklusif' => 'required|in:ya,tidak',
+            'imunisasi_lengkap' => 'required|in:ya,tidak,tidak_lengkap',
+            'pendapatan_keluarga' => 'required|in:lt_600k,600k_1m,1m_2m,2m_5m,gt_5m', // Fixed: accept string keys
+            'pendidikan_ibu' => 'required|in:sd,smp,sma,diploma,sarjana',
+            'akses_air_bersih' => 'required|in:ya,tidak',
+            'sanitasi_layak' => 'required|in:ya,tidak',
+            'jumlah_anggota_keluarga' => 'required|integer|min:1|max:20',
+            'riwayat_penyakit' => 'nullable|string|max:1000'
         ];
+    }
 
-        // Ambil semua balita berdasarkan urutan nama (sesuai BalitaSeeder)
-        $balitaList = Balita::orderBy('id')->get();
-        
-        if ($balitaList->count() !== count($pengukuranData)) {
-            $this->command->error('Jumlah data balita (' . $balitaList->count() . ') tidak sesuai dengan data pengukuran (' . count($pengukuranData) . ')');
-            return;
+    public function messages()
+    {
+        return [
+            'balita_id.required' => 'Balita wajib dipilih',
+            'balita_id.exists' => 'Balita tidak ditemukan',
+            'tanggal_pengukuran.required' => 'Tanggal pengukuran wajib diisi',
+            'tanggal_pengukuran.date' => 'Format tanggal tidak valid',
+            'tanggal_pengukuran.before_or_equal' => 'Tanggal pengukuran tidak boleh lebih dari hari ini',
+            'umur_bulan.required' => 'Umur dalam bulan wajib diisi',
+            'umur_bulan.integer' => 'Umur harus berupa angka bulat',
+            'umur_bulan.min' => 'Umur minimal 0 bulan',
+            'umur_bulan.max' => 'Umur maksimal 60 bulan (5 tahun)',
+            'berat_badan.required' => 'Berat badan wajib diisi',
+            'berat_badan.numeric' => 'Berat badan harus berupa angka',
+            'berat_badan.min' => 'Berat badan minimal 1 kg',
+            'berat_badan.max' => 'Berat badan maksimal 50 kg',
+            'tinggi_badan.required' => 'Tinggi badan wajib diisi',
+            'tinggi_badan.numeric' => 'Tinggi badan harus berupa angka',
+            'tinggi_badan.min' => 'Tinggi badan minimal 30 cm',
+            'tinggi_badan.max' => 'Tinggi badan maksimal 150 cm',
+            'lingkar_kepala.numeric' => 'Lingkar kepala harus berupa angka',
+            'lingkar_kepala.min' => 'Lingkar kepala minimal 25 cm',
+            'lingkar_kepala.max' => 'Lingkar kepala maksimal 60 cm',
+            'lingkar_lengan.numeric' => 'Lingkar lengan harus berupa angka',
+            'lingkar_lengan.min' => 'Lingkar lengan minimal 8 cm',
+            'lingkar_lengan.max' => 'Lingkar lengan maksimal 25 cm',
+            'asi_eksklusif.required' => 'Status ASI eksklusif wajib dipilih',
+            'asi_eksklusif.in' => 'Status ASI eksklusif tidak valid',
+            'imunisasi_lengkap.required' => 'Status imunisasi wajib dipilih',
+            'imunisasi_lengkap.in' => 'Status imunisasi tidak valid',
+            'pendapatan_keluarga.required' => 'Pendapatan keluarga wajib dipilih',
+            'pendapatan_keluarga.in' => 'Pendapatan keluarga tidak valid. Pilih salah satu kategori yang tersedia.',
+            'pendidikan_ibu.required' => 'Pendidikan ibu wajib dipilih',
+            'pendidikan_ibu.in' => 'Pendidikan ibu tidak valid',
+            'akses_air_bersih.required' => 'Status akses air bersih wajib dipilih',
+            'akses_air_bersih.in' => 'Status akses air bersih tidak valid',
+            'sanitasi_layak.required' => 'Status sanitasi wajib dipilih',
+            'sanitasi_layak.in' => 'Status sanitasi tidak valid',
+            'jumlah_anggota_keluarga.required' => 'Jumlah anggota keluarga wajib diisi',
+            'jumlah_anggota_keluarga.integer' => 'Jumlah anggota keluarga harus berupa angka bulat',
+            'jumlah_anggota_keluarga.min' => 'Jumlah anggota keluarga minimal 1',
+            'jumlah_anggota_keluarga.max' => 'Jumlah anggota keluarga maksimal 20',
+            'riwayat_penyakit.string' => 'Riwayat penyakit harus berupa teks',
+            'riwayat_penyakit.max' => 'Riwayat penyakit maksimal 1000 karakter'
+        ];
+    }
+
+    protected function prepareForValidation()
+    {
+        // Auto calculate age in months if not provided or if it's 0
+        if ((!$this->umur_bulan || $this->umur_bulan == 0) && $this->balita_id && $this->tanggal_pengukuran) {
+            try {
+                $balita = \App\Models\Balita::find($this->balita_id);
+                if ($balita && $balita->tanggal_lahir) {
+                    $tanggalLahir = Carbon::parse($balita->tanggal_lahir);
+                    $tanggalUkur = Carbon::parse($this->tanggal_pengukuran);
+                    
+                    // Calculate age in months
+                    $umurBulan = $tanggalLahir->diffInMonths($tanggalUkur);
+                    
+                    // Ensure age is within valid range
+                    $umurBulan = max(0, min(60, $umurBulan));
+                    
+                    $this->merge([
+                        'umur_bulan' => $umurBulan
+                    ]);
+                }
+            } catch (\Exception $e) {
+                \Log::warning('Error calculating age: ' . $e->getMessage());
+                // If calculation fails, keep the original value or set to 0
+                if (!$this->umur_bulan) {
+                    $this->merge(['umur_bulan' => 0]);
+                }
+            }
         }
+    }
 
-        foreach ($balitaList as $index => $balita) {
-            // Ambil data pengukuran sesuai index
-            $pengukuran = $pengukuranData[$index];
-            
-            // Generate tanggal pengukuran yang realistis (1-3 bulan terakhir)
-            $tanggalPengukuran = Carbon::now()->subDays(rand(30, 90));
-            
-            // Hitung umur dalam bulan berdasarkan tanggal lahir dan tanggal pengukuran
-            $umurBulan = Carbon::parse($balita->tanggal_lahir)->diffInMonths($tanggalPengukuran);
-            
-            // Generate data tambahan sesuai ketentuan
-            $dataSeeder = [
-                'balita_id' => $balita->id,
-                'tanggal_pengukuran' => $tanggalPengukuran,
-                'umur_bulan' => $umurBulan,
-                'berat_badan' => $pengukuran['berat_badan'],
-                'tinggi_badan' => $pengukuran['tinggi_badan'],
-                
-                // Lingkar kepala dan lingkar lengan bisa kosong (nullable)
-                'lingkar_kepala' => null,
-                'lingkar_lengan' => null,
-                
-                // ASI eksklusif semua 'ya'
-                'asi_eksklusif' => 'ya',
-                
-                // Status imunisasi lengkap semua 'ya'
-                'imunisasi_lengkap' => 'ya',
-                
-                // Riwayat penyakit kosong
-                'riwayat_penyakit' => null,
-                
-                // Pendapatan rata-rata semua di 1jt-2jt (1000000 berdasarkan mapping di controller)
-                'pendapatan_keluarga' => 1000000,
-                
-                // Pendidikan ibu rata-rata semua SMA/sederajat
-                'pendidikan_ibu' => 'sma',
-                
-                // Anggota keluarga tidak lebih dari 5 (random 3-5)
-                'jumlah_anggota_keluarga' => rand(3, 5),
-                
-                // Akses air bersih semua 'ya'
-                'akses_air_bersih' => 'ya',
-                
-                // Sanitasi layak semua 'ya'
-                'sanitasi_layak' => 'ya',
-                
-                // User ID (admin yang membuat)
-                'user_id' => 1,
-                
-                // Timestamps
-                'created_at' => $tanggalPengukuran,
-                'updated_at' => $tanggalPengukuran,
-            ];
-            
-            Pengukuran::create($dataSeeder);
-        }
+    /**
+     * Get custom attributes for validator errors.
+     */
+    public function attributes()
+    {
+        return [
+            'balita_id' => 'balita',
+            'tanggal_pengukuran' => 'tanggal pengukuran',
+            'umur_bulan' => 'umur (bulan)',
+            'berat_badan' => 'berat badan',
+            'tinggi_badan' => 'tinggi badan',
+            'lingkar_kepala' => 'lingkar kepala',
+            'lingkar_lengan' => 'lingkar lengan',
+            'asi_eksklusif' => 'ASI eksklusif',
+            'imunisasi_lengkap' => 'status imunisasi',
+            'pendapatan_keluarga' => 'pendapatan keluarga',
+            'pendidikan_ibu' => 'pendidikan ibu',
+            'akses_air_bersih' => 'akses air bersih',
+            'sanitasi_layak' => 'sanitasi layak',
+            'jumlah_anggota_keluarga' => 'jumlah anggota keluarga',
+            'riwayat_penyakit' => 'riwayat penyakit'
+        ];
+    }
 
-        $this->command->info('Berhasil menambahkan ' . count($pengukuranData) . ' data pengukuran');
-        $this->command->line('Detail seeder:');
-        $this->command->line('- ASI Eksklusif: Semua YA');
-        $this->command->line('- Status Imunisasi: Semua YA (Lengkap)');
-        $this->command->line('- Pendapatan Keluarga: Semua Rp 1.000.000 - Rp 2.000.000');
-        $this->command->line('- Pendidikan Ibu: Semua SMA/Sederajat');
-        $this->command->line('- Jumlah Anggota Keluarga: 3-5 orang (random)');
-        $this->command->line('- Akses Air Bersih: Semua YA');
-        $this->command->line('- Sanitasi Layak: Semua YA');
-        $this->command->line('- Lingkar Kepala & Lingkar Lengan: Kosong (NULL)');
-        $this->command->line('- Riwayat Penyakit: Kosong (NULL)');
-        $this->command->line('- Umur Bulan: Dihitung otomatis berdasarkan tanggal lahir dan tanggal pengukuran');
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            // Additional validation: Check if measurement date is after birth date
+            if ($this->balita_id && $this->tanggal_pengukuran) {
+                try {
+                    $balita = \App\Models\Balita::find($this->balita_id);
+                    if ($balita && $balita->tanggal_lahir) {
+                        $tanggalLahir = Carbon::parse($balita->tanggal_lahir);
+                        $tanggalUkur = Carbon::parse($this->tanggal_pengukuran);
+                        
+                        if ($tanggalUkur->lt($tanggalLahir)) {
+                            $validator->errors()->add('tanggal_pengukuran', 'Tanggal pengukuran tidak boleh sebelum tanggal lahir balita');
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Error validating measurement date: ' . $e->getMessage());
+                }
+            }
+
+            // Validate weight and height ratio (basic sanity check)
+            if ($this->berat_badan && $this->tinggi_badan) {
+                $bmi = $this->berat_badan / (($this->tinggi_badan / 100) ** 2);
+                if ($bmi < 5 || $bmi > 40) {
+                    $validator->errors()->add('berat_badan', 'Rasio berat badan dan tinggi badan tampak tidak normal. Mohon periksa kembali.');
+                }
+            }
+
+            // Validate age consistency
+            if ($this->umur_bulan && $this->balita_id && $this->tanggal_pengukuran) {
+                try {
+                    $balita = \App\Models\Balita::find($this->balita_id);
+                    if ($balita && $balita->tanggal_lahir) {
+                        $calculatedAge = Carbon::parse($balita->tanggal_lahir)->diffInMonths(Carbon::parse($this->tanggal_pengukuran));
+                        
+                        // Allow small discrepancy (±1 month) for manual adjustments
+                        if (abs($this->umur_bulan - $calculatedAge) > 1) {
+                            $validator->errors()->add('umur_bulan', "Umur yang diinput ({$this->umur_bulan} bulan) tidak sesuai dengan perhitungan dari tanggal lahir ({$calculatedAge} bulan)");
+                        }
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Error validating age consistency: ' . $e->getMessage());
+                }
+            }
+        });
     }
 }
